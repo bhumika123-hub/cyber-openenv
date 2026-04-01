@@ -1,17 +1,22 @@
 [project]
 name = "cyber-openenv"
 version = "0.1.0"
-description = "Cyber Defence OpenEnv environment for AI agents"
+description = "Cyber Defence OpenEnv environment"
 authors = [
     { name = "Bhumika Warkhade" }
 ]
+
 dependencies = [
     "fastapi",
     "uvicorn",
     "pydantic",
     "requests",
-    "openai"
+    "openai",
+    "openenv>=0.2.0"
 ]
+
+[project.scripts]
+server = "server.app:app"
 
 [build-system]
 requires = ["setuptools", "wheel"]
