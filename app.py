@@ -4,6 +4,10 @@ from env.environment import CyberEnv
 app = FastAPI()
 env = CyberEnv()
 
+@app.get("/")
+def home():
+    return {"message": "Cyber Defence API is running 🚀"}
+
 @app.post("/reset")
 def reset(task: str):
     return env.reset(task)
