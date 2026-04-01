@@ -1,0 +1,18 @@
+[project]
+name = "cyber-openenv"
+version = "0.1.0"
+description = "Cyber Defence OpenEnv environment for AI agents"
+authors = [
+    { name = "Bhumika Warkhade" }
+]
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "requests",
+    "openai"
+]
+
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
