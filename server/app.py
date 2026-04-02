@@ -1,56 +1,60 @@
-from fastapi import FastAPI, Body
+from fastapi import FastAPI
 from pydantic import BaseModel
-from typing import Optional
 from env.environment import CyberEnv
 
 app = FastAPI()
 
-# Initialize environment
+# Initialize environment (safe)
 env = CyberEnv()
 
-
-# ================= REQUEST MODELS =================
+# ===== Request Models =====
 class ResetRequest(BaseModel):
-    task: Optional[str] = None
-
+    task: str = "easy"   # default value
 
 class StepRequest(BaseModel):
-    action: Optional[str] = None
+    action: str = "safe"  # default value
 
 
-# ================= ROOT =================
+# ===== Routes =====
 @app.get("/")
 def home():
     return {"message": "Cyber Defence API is running 🚀"}
 
 
-# ================= RESET =================
 @app.post("/reset")
-def reset(req: ResetRequest = Body(None), task: str = None):
-    """
-    Supports:
-    - JSON body: {"task": "easy"}
-    - Query: /reset?task=easy
-    - Empty: defaults to "easy"
-    """
-    task_name = req.task if req and req.task else task or "easy"
-    return env.reset(task_name)
+def reset(req: ResetRequest = None):
+    try:
+        task = "easy"
+        if req and req.task:
+            task = req.task
+        return env.reset(task)
+    except Exception as e:
+        return {"error": str(e)}
 
 
-# ================= STEP =================
 @app.post("/step")
-def step(req: StepRequest = Body(None), action: str = None):
-    """
-    Supports:
-    - JSON body: {"action": "block"}
-    - Query: /step?action=block
-    - Empty: defaults to "noop"
-    """
-    act = req.action if req and req.action else action or "noop"
-    return env.step(act)
+def step(req: StepRequest = None):
+    try:
+        action = "safe"
+        if req and req.action:
+            action = req.action
+        return env.step(action)
+    except Exception as e:
+        return {"error": str(e)}
 
 
-# ================= STATE =================
 @app.get("/state")
 def state():
-    return env.state()
+    try:
+        return env.state()
+    except Exception as e:
+        return {"error": str(e)}
+
+
+# ===== ENTRY POINT (IMPORTANT) =====
+def main():
+    import uvicorn
+    uvicorn.run("server.app:app", host="0.0.0.0", port=7860)
+
+if __name__ == "__main__":
+    main()
