@@ -1,67 +1,61 @@
-import os
 import requests
 
-# ================= CONFIG =================
 API_BASE_URL = "https://bhumika45-cyber-defence.hf.space"
-MODEL_NAME = os.getenv("MODEL_NAME", "gpt-4o-mini")
-
 MAX_STEPS = 5
 
-print("Inference file loaded successfully")
 
-# ================= HELPER FUNCTIONS =================
 def reset_env():
     try:
         res = requests.post(f"{API_BASE_URL}/reset", json={"task": "easy"})
         return res.json()
-    except Exception as e:
-        print("Reset error:", e)
+    except:
         return {}
+
 
 def step_env(action):
     try:
         res = requests.post(f"{API_BASE_URL}/step", json={"action": action})
         return res.json()
-    except Exception as e:
-        print("Step error:", e)
+    except:
         return {}
 
-def get_state():
-    try:
-        res = requests.get(f"{API_BASE_URL}/state")
-        return res.json()
-    except Exception as e:
-        print("State error:", e)
-        return {}
 
-# ================= MAIN LOGIC =================
-def run_inference():
-    print("Starting inference...")
+def run():
+    task_name = "cyber_defence"
+
+    # ✅ START BLOCK
+    print(f"[START] task={task_name}", flush=True)
 
     state = reset_env()
-    print("Initial State:", state)
 
-    for i in range(MAX_STEPS):
-        print(f"\nStep {i+1}")
+    total_reward = 0
 
-        # Fallback safe action (no API key needed)
-        action = "safe"
+    for step in range(1, MAX_STEPS + 1):
+        action = "safe"  # fallback action
 
         result = step_env(action)
-        print("Result:", result)
+
+        reward = 0
+        if isinstance(result, dict):
+            reward = result.get("reward", 0)
+
+        total_reward += reward
+
+        # ✅ STEP BLOCK
+        print(f"[STEP] step={step} reward={reward}", flush=True)
 
         if isinstance(result, dict) and result.get("done"):
-            print("Task completed early")
             break
 
-    final_state = get_state()
-    print("\nFinal State:", final_state)
+    # ✅ END BLOCK
+    print(
+        f"[END] task={task_name} score={total_reward} steps={step}",
+        flush=True
+    )
 
-    print("Inference completed successfully")
 
-# ================= ENTRY POINT =================
 if __name__ == "__main__":
     try:
-        run_inference()
+        run()
     except Exception as e:
-        print("FATAL ERROR:", str(e))
+        print(f"[END] task=cyber_defence score=0 steps=0", flush=True)
