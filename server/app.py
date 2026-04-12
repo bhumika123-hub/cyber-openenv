@@ -8,77 +8,60 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from env.environment import CyberEnv
 
-# =========================================================
-# 🚀 Cyber Defence Environment API
-# =========================================================
-
 app = FastAPI()
 
 # Initialize environment
 env = CyberEnv()
 
 
-# ===== 📦 REQUEST MODELS =====
+# ===== REQUEST MODELS =====
 class ResetRequest(BaseModel):
-    task: str = "easy"   # easy / medium / hard
+    task: str = "easy"
 
 
 class StepRequest(BaseModel):
-    action: str = "safe"  # safe / attack
+    action: str = "monitor"  # default action
 
 
-# ===== 🏠 ROOT =====
+# ===== ROOT =====
 @app.get("/")
 def home():
     return {
         "message": "Cyber Defence API is running 🚀",
-        "endpoints": ["/reset", "/step", "/state"]
+        "actions": ["block_ip", "monitor", "patch_system"]
     }
 
 
-# ===== 🔄 RESET =====
+# ===== RESET =====
 @app.post("/reset")
 def reset(req: ResetRequest = None):
     try:
         task = req.task if req and req.task else "easy"
-
-        state = env.reset(task)
-
-        return {
-            "task": task,
-            "state": state
-        }
-
+        return env.reset(task)
     except Exception as e:
         return {"error": str(e)}
 
 
-# ===== ⚙️ STEP =====
+# ===== STEP =====
 @app.post("/step")
 def step(req: StepRequest = None):
     try:
-        action = req.action if req and req.action else "safe"
-
-        result = env.step(action)
-
-        return result
-
+        action = req.action if req and req.action else "monitor"
+        return env.step(action)
     except Exception as e:
         return {"error": str(e)}
 
 
-# ===== 📊 STATE =====
+# ===== STATE =====
 @app.get("/state")
 def get_state():
     try:
-        return {
-            "state": env.state
-        }
+        return {"state": env.get_state()}
     except Exception as e:
         return {"error": str(e)}
 
 
-# ===== 🚀 ENTRY POINT =====
+# ===== ENTRY POINT =====
 def main():
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=7860)
